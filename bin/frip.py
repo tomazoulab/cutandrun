@@ -38,17 +38,21 @@ peak_file_list = glob.glob(args.peaks)
 frips = []
 for idx, bam_file in enumerate(bam_file_list):
     print("Calculating " + bam_file + " using " + peak_file_list[idx])
-    cr = crpb.CountReadsPerBin([bam_file], bedFile=[peak_file_list[idx]], numberOfProcessors=int(args.threads))
+    if os.path.getsize(peak_file_list[idx])!=0:
+        
+        cr = crpb.CountReadsPerBin([bam_file], bedFile=[peak_file_list[idx]], numberOfProcessors=int(args.threads))
 
-    # Calc the total number of reads in peaks per bam file
-    reads_at_peaks = cr.run()
-    total = reads_at_peaks.sum(axis=0)
+        # Calc the total number of reads in peaks per bam file
+        reads_at_peaks = cr.run()
+        total = reads_at_peaks.sum(axis=0)
 
-    # Load up bam file and get the total number of mapped reads
-    bam = pysam.AlignmentFile(bam_file)
+        # Load up bam file and get the total number of mapped reads
+        bam = pysam.AlignmentFile(bam_file)
 
-    # Calc frip
-    frip = float(total[0]) / bam.mapped
+        # Calc frip
+        frip = float(total[0]) / bam.mapped
+    else:
+        frip=0
     frips.append(str(frip))
 
     # Log
